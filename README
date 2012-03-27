@@ -1,6 +1,6 @@
 + INTRODUCTION
 
-This is a node.js service that uses Blizzard API to make a little summary of the guild activities and, optionally, send it to an e-mail address.
+This is a node.js program that uses Blizzard API to make a little summary of the guild activities and, optionally, send it to an e-mail address.
 
 Right now, this service only shows member achievements.
 
@@ -8,7 +8,11 @@ Right now, this service only shows member achievements.
 
 There are 3 main node files. Each one of them should be executed with a node.js executable.
 
-Ex: node summary.js
+- metadata.js
+
+Load some almost static data and saves it on disk for later use by summary.js
+
+This is the first and required step. This program can be called only once and should be called again when a new race, class or achievement is created.
 
 - summary.js: 
 
@@ -26,14 +30,6 @@ To use the mail-sender.js program, you need to create a file named mail-config.j
   "smtpUser": "mail@mail.com",
   "smtpPass": "secret"
 }
-
-
-- metadata.js
-
-Load some almost static data and saves it on disk for later use by wow-guild-activities.js
-
-The first required step is invoke the metadata.js program. This program can be called only once and should be called again when a new race, class or achievement is created.
-
 
 + MODULES REQUIRED
 
