@@ -1,0 +1,6 @@
+{
+  "from": "someuser@mail.com",
+  "to": "joe@email.com",
+  "smtpUser": "someuser@gmail.com",
+  "smtpPass": "secret"
+}
