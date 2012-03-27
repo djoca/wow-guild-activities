@@ -5,7 +5,7 @@ var util = require('util');
 fs.mkdir("data");
 fs.mkdir("conf");
 
-var resumo = fs.readFileSync('data/summary.html', 'utf8');
+var summary = fs.readFileSync('data/summary.html', 'utf8');
 
 var yesterday = new Date();
 yesterday.setDate(yesterday.getDate()-1);
@@ -24,7 +24,7 @@ var mailOptions = {
 	from: mailConfig.from, 
 	to: mailConfig.to, 
 	subject: util.format("Resumo de %s/%s/%s", yesterday.getDate(), (yesterday.getMonth()+1), yesterday.getFullYear()), 
-	html: resumo
+	html: summary
 }
 
 smtpTransport.sendMail(mailOptions, function(error, response){

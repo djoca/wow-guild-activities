@@ -18,6 +18,13 @@ This is the first and required step. This program can be called only once and sh
 
 Invokes Blizzard API, looking for new activities. The activities are saved as summary.html.
 
+To use the summary.js program, you need to create a file named summary-config.json with your configurations. This file should look as:
+
+{
+  "realm": "Tol Barad",
+  "guild": "Gratenoineg Canaldaça"
+}
+
 - mail-sender.js
 
 Send the summary.html previously created to an e-mail address.

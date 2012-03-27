@@ -8,8 +8,10 @@ console.log('Retrieving guild activities');
 fs.mkdir("data");
 fs.mkdir("conf");
 
-var realm = 'Tol Barad'
-var guildName = 'Gratenoineg Canaldaça'
+var summaryConfig = JSON.parse(fs.readFileSync("conf/summary-config.json"));
+
+var realm = summaryConfig.realm;
+var guildName = summaryConfig.guild;
 
 var charPath = util.format('/api/wow/character/%s/', encodeURIComponent(realm));
 var guildPath = util.format('/api/wow/guild/%s/%s?fields=members', encodeURIComponent(realm), encodeURIComponent(guildName));
@@ -18,6 +20,8 @@ var imgPath = '/static-render/us/%s';
 var yesterday = new Date();
 yesterday.setDate(yesterday.getDate()-1);
 
+// Prevents 'socket hang up' errors
+http.globalAgent.maxSockets = 1024;
 
 // Summary
 
