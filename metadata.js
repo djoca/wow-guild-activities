@@ -8,13 +8,13 @@ fs.mkdir("data");
 fs.mkdir("conf");
 
 var achievFile = 'data/achievements.json';
-var achievPath = '/api/wow/data/character/achievements/';
+var achievPath = '/api/wow/data/character/achievements';
 
 var classFile = 'data/classes.json';
-var classPath = '/api/wow/data/character/classes/';
+var classPath = '/api/wow/data/character/classes';
 
 var raceFile = 'data/races.json';
-var racePath = '/api/wow/data/character/races/';
+var racePath = '/api/wow/data/character/races';
 
 function errorHandler(e) {
     console.log(e.message);
