@@ -17,8 +17,16 @@ var charPath = util.format('/api/wow/character/%s/', encodeURIComponent(realm));
 var guildPath = util.format('/api/wow/guild/%s/%s?fields=members', encodeURIComponent(realm), encodeURIComponent(guildName));
 var imgPath = '/static-render/us/%s';
 
-var yesterday = new Date();
-yesterday.setDate(yesterday.getDate()-1);
+var lastSummaryFile = "data/lastSummary.dat"
+
+// TODO print last summary date on footer
+
+// Retrieve lastSummary info
+if (!fs.existsSync(lastSummaryFile)) {
+	// Date set to the beginning of the achievement system (patch 3.0.2)
+	fs.writeFileSync(lastSummaryFile, new Date(2008, 9, 14, 0, 0, 0, 0));
+}
+var lastSummary = new Date(fs.readFileSync(lastSummaryFile));
 
 // Prevents 'socket hang up' errors
 http.globalAgent.maxSockets = 1024;
@@ -75,7 +83,8 @@ Bnet.prototype.request = function(apiPath, callback) {
 	opts = {
 		host: 'us.battle.net',
 		port: 80,
-		path: apiPath
+		path: apiPath,
+		agent: false  // agent == true defaults to 5 max connections
 	};
 	
 	http.get(opts, function(res) {
@@ -83,7 +92,7 @@ Bnet.prototype.request = function(apiPath, callback) {
 		var data = '';
 	
 		res.on('data', function(c) {
-			data += c;
+			data += c.toString();
 		});
 	
 		res.on('end', function() {
@@ -91,6 +100,7 @@ Bnet.prototype.request = function(apiPath, callback) {
 		});
 	
 	}).on('error', this.errorHandler);
+
 }
 
 // Character
@@ -102,16 +112,16 @@ function Char(charName) {
 Char.prototype.handler = function(data) {
 	var c = JSON.parse(data);
 
-	var ganhouAchiev = jpath.eval(c.achievements, util.format('$..achievementsCompletedTimestamp[?(@>%s)]', yesterday.getTime()));
+	// ignore inactive characters
+	if (c.status == 'nok')
+		return;
+		
+	var ganhouAchiev = jpath.eval(c.achievements, util.format('$..achievementsCompletedTimestamp[?(@>%s)]', lastSummary.getTime()));
 
 	if (ganhouAchiev && ganhouAchiev.length == 0) {
 		return;
 	}
 	
-	// ignore inactive characters
-	if (c.status == 'nok')
-		return;
-		
 	var charName = '';
 	var titleName = '';
 		
@@ -135,21 +145,24 @@ Char.prototype.handler = function(data) {
 	summary.addChar(charName, c, raceName, className);
 
 	// handle achievements
-	// TODO Not optimized code. I know it can be better!
 	for (var a in c.achievements.achievementsCompleted) {
-		var achievId = c.achievements.achievementsCompleted[a];
+
 		var achievTime = c.achievements.achievementsCompletedTimestamp[a];
+
+		if (achievTime < lastSummary) {
+			continue;
+		}
+		
+		var achievId = c.achievements.achievementsCompleted[a];
 		var achiev = jpath.eval(achievements, util.format('$..achievements[?(@.id==%s && @.title)]', achievId))[0];
 		
-		if (achievTime > yesterday) {
-			summary.addAchiev(achiev);
-		}
+		summary.addAchiev(achiev);
 
 	}
 }
 
 Char.prototype.request = function() {
-	var path = charPath + this.name + '?fields=achievements,titles,charHandler';
+	var path = charPath + this.name + '?fields=achievements,titles';
 	new Bnet().request(path, this.handler);
 }
 
@@ -162,13 +175,10 @@ function guildHandler(data) {
     
     summary.addGuild(g);
 
-	var requests = new Array();
-
     for (var m in g.members) {
         var c = g.members[m].character;
         new Char(c.name).request();
     }
-
 }
 
 function guildRequest() {
@@ -184,4 +194,5 @@ guildRequest();
 process.on('exit', function () {
 	summary.addFooter();
 	fs.writeFileSync('data/summary.html', summary.html, 'utf8');
+	fs.writeFileSync(lastSummaryFile, new Date());
 });

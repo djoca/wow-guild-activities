@@ -7,8 +7,7 @@ fs.mkdir("conf");
 
 var summary = fs.readFileSync('data/summary.html', 'utf8');
 
-var yesterday = new Date();
-yesterday.setDate(yesterday.getDate()-1);
+var now = new Date();
 
 var mailConfig = JSON.parse(fs.readFileSync("conf/mail-config.json"));
 
@@ -23,7 +22,7 @@ var smtpTransport = nodemailer.createTransport("SMTP",{
 var mailOptions = {
 	from: mailConfig.from, 
 	to: mailConfig.to, 
-	subject: util.format("Resumo de %s/%s/%s", yesterday.getDate(), (yesterday.getMonth()+1), yesterday.getFullYear()), 
+	subject: util.format("Resumo de %s/%s/%s", now.getDate(), (now.getMonth()+1), now.getFullYear()), 
 	html: summary
 }
 
