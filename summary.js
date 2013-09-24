@@ -112,6 +112,10 @@ function Char(charName) {
 Char.prototype.handler = function(data) {
 	var c = JSON.parse(data);
 
+	// ignore inactive characters (since 5.4)
+	if (Object.keys(c).length == 0)
+		return;
+
 	// ignore inactive characters
 	if (c.status == 'nok')
 		return;
