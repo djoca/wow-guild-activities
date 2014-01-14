@@ -75,7 +75,7 @@ function Bnet() {
 }
 
 Bnet.prototype.errorHandler = function(e) {
-	console.log(e.message);
+	console.log('Bnet request error: ' + e.message);
 }
 
 Bnet.prototype.request = function(apiPath, callback) {
@@ -179,10 +179,21 @@ function guildHandler(data) {
     
     summary.addGuild(g);
 
-    for (var m in g.members) {
+    var m = 0;
+
+    function timedRequest(m) {
         var c = g.members[m].character;
+        console.log(util.format("Retrieving info for character %s...", c.name));
         new Char(c.name).request();
-    }
+
+        m++;
+
+        if (m < g.members.length) {
+            setTimeout(timedRequest, 1000, m);
+        }
+    } 
+
+    timedRequest(m);
 }
 
 function guildRequest() {
