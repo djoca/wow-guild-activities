@@ -1,4 +1,4 @@
-var http = require('http');
+var https = require('https');
 var fs = require('fs');
 var util = require('util');
 
@@ -7,14 +7,18 @@ console.log('Retrieving metadata');
 fs.mkdir("data");
 fs.mkdir("conf");
 
+var summaryConfig = JSON.parse(fs.readFileSync("conf/summary-config.json"));
+
+var apiKey = summaryConfig.apiKey;
+
 var achievFile = 'data/achievements.json';
-var achievPath = '/api/wow/data/character/achievements';
+var achievPath = '/wow/data/character/achievements';
 
 var classFile = 'data/classes.json';
-var classPath = '/api/wow/data/character/classes';
+var classPath = '/wow/data/character/classes';
 
 var raceFile = 'data/races.json';
-var racePath = '/api/wow/data/character/races';
+var racePath = '/wow/data/character/races';
 
 function errorHandler(e) {
     console.log(e.message);
@@ -23,12 +27,15 @@ function errorHandler(e) {
 function bnetRequest(apiPath, callback) {
 
 	opts = {
-		host: 'us.battle.net',
-		port: 80,
+		host: 'us.api.battle.net',
 		path: apiPath
 	};
 
-    http.get(opts, function(res) {
+        // Add api-key to path
+        var paramSeparator = apiPath.indexOf("?") === -1 ? "?" : "&";
+        opts.path += util.format("%sapikey=%s", paramSeparator, apiKey);
+
+	https.get(opts, function(res) {
 
 		var data = '';
 	
@@ -40,7 +47,7 @@ function bnetRequest(apiPath, callback) {
 			callback(data);
 		});
 	
-    }).on('error', errorHandler);
+	}).on('error', errorHandler);
 }
 
 function writeFile(fileName, data) {

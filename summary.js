@@ -1,4 +1,5 @@
-var http = require('http');
+var http = require('https');
+var https = require('https');
 var fs = require('fs');
 var util = require('util');
 var jpath = require('JSONPath');
@@ -10,11 +11,12 @@ fs.mkdir("conf");
 
 var summaryConfig = JSON.parse(fs.readFileSync("conf/summary-config.json"));
 
+var apiKey = summaryConfig.apiKey;
 var realm = summaryConfig.realm;
 var guildName = summaryConfig.guild;
 
-var charPath = util.format('/api/wow/character/%s/', encodeURIComponent(realm));
-var guildPath = util.format('/api/wow/guild/%s/%s?fields=members', encodeURIComponent(realm), encodeURIComponent(guildName));
+var charPath = util.format('/wow/character/%s/', encodeURIComponent(realm));
+var guildPath = util.format('/wow/guild/%s/%s?fields=members', encodeURIComponent(realm), encodeURIComponent(guildName));
 var imgPath = '/static-render/us/%s';
 
 var lastSummaryFile = "data/lastSummary.dat"
@@ -81,13 +83,16 @@ Bnet.prototype.errorHandler = function(e) {
 Bnet.prototype.request = function(apiPath, callback) {
 
 	opts = {
-		host: 'us.battle.net',
-		port: 80,
+		host: 'us.api.battle.net',
 		path: apiPath,
 		agent: false  // agent == true defaults to 5 max connections
 	};
+
+	// Add api-key to path
+	var paramSeparator = apiPath.indexOf("?") === -1 ? "?" : "&";
+	opts.path += util.format("%sapikey=%s", paramSeparator, apiKey);
 	
-	http.get(opts, function(res) {
+	https.get(opts, function(res) {
 
 		var data = '';
 	
