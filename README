@@ -23,7 +23,10 @@ To use the summary.js program, you need to create a file named summary-config.js
 {
   "realm": "Tol Barad",
   "guild": "Gratenoineg Canaldaça"
+  "apiKey": "ENTER YOUR API KEY HERE"
 }
+
+Replace the apiKey value with your own key. You can create it at http://dev.battle.net
 
 - mail-sender.js
 
